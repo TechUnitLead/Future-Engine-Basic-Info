@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Search Company</h1>
+        <form id="searchForm">
+            <input type="text" id="company" name="company" placeholder="Enter company name">
+            <button type="submit">Search</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var company = document.getElementById('company').value.trim().toLowerCase();
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'company=' + encodeURIComponent(company)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        <p><strong>Description:</strong> ${data.short_description}</p>
+                        <p><strong>Created At:</strong> ${data.created_at}</p>
+                        <p><strong>Updated At:</strong> ${data.updated_at}</p>
+                        <p><strong>Facebook:</strong> ${data.facebook !== 'N/A' ? '<a href="' + data.facebook + '" target="_blank">Facebook</a>' : 'N/A'}</p>
+                        <p><strong>LinkedIn:</strong> ${data.linkedin !== 'N/A' ? '<a href="' + data.linkedin + '" target="_blank">LinkedIn</a>' : 'N/A'}</p>
+                        <p><strong>Location:</strong> ${data.location}</p>
+                        <p><strong>Stock Exchange Symbol:</strong> ${data.stock_exchange_symbol}</p>
+                        <p><strong>Stock Symbol:</strong> ${data.stock_symbol}</p>
+                        <p><strong>Twitter:</strong> ${data.twitter !== 'N/A' ? '<a href="' + data.twitter + '" target="_blank">Twitter</a>' : 'N/A'}</p>
+                        <p><strong>Website:</strong> ${data.website !== 'N/A' ? '<a href="' + data.website + '" target="_blank">Website</a>' : 'N/A'}</p>
+                        <p><strong>Founders:</strong> ${data.founders}</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = `<p>An error occurred: ${error}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
